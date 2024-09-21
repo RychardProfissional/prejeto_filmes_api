@@ -21,7 +21,9 @@ const getFilmes = (req, res) => {
 };
 
 const getFilmeById = (req, res) => {
-  res.status(200).send(mokfilmes.getMok());
+  const { id } = req.params
+  console.log(`id: ${id}`)
+  res.status(200).send({...mokfilmes.getMok(), id});
 };
 
 const postFilme = (req, res) => {
