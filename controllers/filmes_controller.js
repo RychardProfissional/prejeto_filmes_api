@@ -29,7 +29,11 @@ const getFilmes = async(req, res) => {
 const getFilmeById = async(req, res) => {
   await database.sync();
   const filme = await Filme.findByPk(req.params.id);
-  res.send(filme);
+  res.status(200).send(filme);
+// const getFilmeById = (req, res) => {
+//   const { id } = req.params
+//   console.log(`id: ${id}`)
+//   res.status(200).send({...mokfilmes.getMok(), id});
 };
 
 const postFilme = (req, res) => {
