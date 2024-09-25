@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
-const database = require('./db');
-const { all } = require('./routes/filmes');
+const database = require('../db');
+const { all } = require('../routes/filmes');
 
 const Filme = database.define('filme', {
     id: {

@@ -1,6 +1,6 @@
 const mokfilmes = require('../moks/filmes');
 const database = require('../db');
-const Filme = require('../filme');
+const Filme = require('../schemas/filme');
 
 const getFilmes = async(req, res) => {
   // var filmes = []
