@@ -1,14 +1,7 @@
 const { Sequelize } = require('sequelize');
 const database = require('../db');
-const { all } = require('../routes/filmes');
 
 const Filme = database.define('filme', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
-        primaryKey: true
-    },
     title: {
         type: Sequelize.STRING,
         allowNull: false
@@ -23,9 +16,6 @@ const Filme = database.define('filme', {
         type: Sequelize.STRING
     },
     runtime: {
-        type: Sequelize.STRING
-    },
-    genre: {
         type: Sequelize.STRING
     },
     director: {
@@ -62,9 +52,6 @@ const Filme = database.define('filme', {
         type: Sequelize.STRING
     },
     imdbVotes: {
-        type: Sequelize.STRING
-    },
-    imdbID: {
         type: Sequelize.STRING
     },
     type: {
