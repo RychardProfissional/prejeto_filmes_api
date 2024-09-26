@@ -111,8 +111,23 @@ const putFilme = async (req, res) => {
   }
 };
 
-const deleteFilme = (req, res) => {
-  res.send('deleteFilme');
+const deleteFilme = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const filme = await Filme.findByPk(id);
+    if (!filme) {
+      res.status(404).send({ error: 'Filme não encontrado' });
+      return 
+    }
+
+    await filme.destroy();
+
+    res.status(200).send({ message: 'Filme deletado com sucesso' });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ error: 'Não foi possível deletar o filme' });
+  }
 };
 
 module.exports = {
@@ -123,4 +138,3 @@ module.exports = {
   putFilme,
   deleteFilme,
 };
-
