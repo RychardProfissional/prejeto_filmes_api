@@ -85,83 +85,30 @@ const postFilme = async(req, res) => {
 const putFilme = async (req, res) => {
   const { id } = req.params;
 
-  var filme = null;
   try {
-    filme = await Filme.findByPk(id)
+    const filme = await Filme.findByPk(id);
     if (!filme) {
-      throw new Error('Filme não encontrado');
+      return res.status(404).send({ error: 'Filme não encontrado' });
     }
+
+    const bodyData = req.body;
+
+    const updatedData = Object.keys(bodyData).reduce((acc, key) => {
+      if (bodyData[key] !== undefined) {
+        acc[key] = bodyData[key];
+      }
+      return acc;
+    }, {});
+
+    await filme.update(updatedData);
+
+    const updatedFilme = await Filme.findByPk(id);
+
+    res.status(200).send(updatedFilme);
   } catch (e) {
     console.error(e);
-    res.status(404).send({ error: 'Filme Não encontrado' });
-    return;
+    res.status(500).send({ error: 'Não foi possível atualizar o filme' });
   }
-
-  const {
-    title,
-    year,
-    rated,
-    released,
-    runtime,
-    genre,
-    director,
-    writer,
-    actors,
-    plot,
-    language,
-    country,
-    awards,
-    poster,
-    ratings,
-    metascore,
-    imdbRating,
-    imdbVotes,
-    type,
-    dvd,
-    boxOffice,
-    production,
-    website,
-    response
-  } = req.body;
-
-  const updatedFilme = await filme.update({
-    title,
-    year,
-    rated,
-    released,
-    runtime,
-    genre,
-    director,
-    writer,
-    actors,
-    plot,
-    language,
-    country,
-    awards,
-    poster,
-    ratings,
-    metascore,
-    imdbRating,
-    imdbVotes,
-    type,
-    dvd,
-    boxOffice,
-    production,
-    website,
-    response
-  })
-    .catch((e) => {
-      console.error(e);
-      res.status(500);
-      return null
-    });
-
-  if (!updatedFilme) {
-    res.status(500).send({ error: 'não foi possivel atualizar o filme' });
-    return;
-  }
-
-  res.status(200).send(updatedFilme);
 };
 
 const deleteFilme = (req, res) => {
