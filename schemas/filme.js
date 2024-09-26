@@ -2,6 +2,11 @@ const { Sequelize } = require('sequelize');
 const database = require('../db');
 
 const Filme = database.define('filme', {
+    imdbID: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        primaryKey: true
+    },
     title: {
         type: Sequelize.STRING,
         allowNull: false
@@ -72,6 +77,12 @@ const Filme = database.define('filme', {
     response: {
         type: Sequelize.STRING
     }
+});
+
+Filme.belongsToMany(Genero, {
+    through: 'FilmeGeneros',  
+    foreignKey: 'filmeId',    
+    otherKey: 'generoId'      
 });
 
 module.exports = Filme;

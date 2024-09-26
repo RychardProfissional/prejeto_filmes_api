@@ -1,49 +1,53 @@
-const mokfilmes = require('../moks/filmes');
 const database = require('../db');
-const Filme = require('../schemas/filme');
+const Genero = require('../schemas/genero');
 
 const getGeneros = async(req, res) => {
-  // var filmes = []
-  // const { filter } = req.query
-  // switch (filter) {
-  //   case 'recentes':
-  //     filmes = mokfilmes.getMoks(10).sort((a, b) => new Date(b.data_lancamento) - new Date(a.data_lancamento));
-  //   break
-  //   case 'avaliados':
-  //     filmes = mokfilmes.getMoks(10).sort((a, b) => b.avaliacao - a.avaliacao);
-  //   break
-  //   case 'classificados':
-  //     filmes = mokfilmes.getMoks(10).sort((a, b) => b.classificacao.localeCompare(a.classificacao));
-  //   break
-  //   case 'populares':
-  //     filmes = mokfilmes.getMoks(10).sort((a, b) => b.duracao.localeCompare(a.duracao));
-  //   break
-  // }
-  // res.status(200).send(filmes);
-
-  const filmes = await Filme.findAll();
-  res.send(filmes);
+  const generos = await Genero.findAll();
+  res.status(200).send(generos);
 };
 
 const getGeneroById = async(req, res) => {
-  const filme = await Filme.findByPk(req.params.id);
-  res.status(200).send(filme);
-// const getFilmeById = (req, res) => {
-//   const { id } = req.params
-//   console.log(`id: ${id}`)
-//   res.status(200).send({...mokfilmes.getMok(), id});
+  const genero = await Genero.findByPk(req.params.id);
+  res.status(200).send(genero);
 };
 
 const postGenero = (req, res) => {
-  res.send('postFilme');
+  res.status(201).send('postFilme');
 };
 
-const putGenero = (req, res) => {
-  res.send('putFilme');
+const putGenero = async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const genero = await Genero.findByPk(id);
+    if (!genero) {
+      return res.status(404).send({ error: 'Genero não encontrado' });
+    }
+
+    const bodyData = req.body;
+
+    const updatedData = Object.keys(bodyData).reduce((acc, key) => {
+      if (bodyData[key] !== undefined) {
+        acc[key] = bodyData[key];
+      }
+      return acc;
+    }, {});
+
+    await genero.update(updatedData);
+
+    const updatedFilme = await Genero.findByPk(id);
+
+    res.status(200).send(updatedFilme);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ error: 'Não foi possível atualizar o filme' });
+  }
 };
 
 const deleteGenero = (req, res) => {
-  res.send('deleteFilme');
+
+
+  res.status(200).send(req.body);
 };
 
 module.exports = {

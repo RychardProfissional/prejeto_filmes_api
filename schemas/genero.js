@@ -15,9 +15,9 @@ const Genero = database.define('genero', {
 });
 
 Genero.belongsToMany(Filme, {
-    through: 'FilmeGeneros',  // Mesma tabela intermediária
-    foreignKey: 'generoId',   // Chave estrangeira para Genero
-    otherKey: 'filmeId'       // Chave estrangeira para Filme
+    through: 'FilmeGeneros',  
+    foreignKey: 'generoId',   
+    otherKey: 'filmeId'       
 });
 
 module.exports = Genero;
