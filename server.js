@@ -1,10 +1,30 @@
-const database = require('./db');
-database.sync();
-
 const dotenv = require('dotenv');
+dotenv.config();
+
+const database = require('./db');
+const Genero = require('./schemas/genero');
+const Filme = require('./schemas/filme');
+
+Genero.belongsToMany(Filme, {
+  through: 'FilmeGeneros',  
+  foreignKey: 'generoId',   
+  otherKey: 'filmeId'       
+});
+
+Filme.belongsToMany(Genero, {
+  through: 'FilmeGeneros',  
+  foreignKey: 'filmeId',    
+  otherKey: 'generoId'      
+});
+
+database.sync()
+  .then(() => console.log('Conectado ao banco de dados'))
+  .catch((err) => {
+    console.log(err);
+  });
+
 const express = require('express');
 const cors = require('cors');
-dotenv.config();
 
 const filmes = require('./routes/filmes');
 const generos = require('./routes/generos');

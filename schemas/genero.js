@@ -1,5 +1,6 @@
 const { Sequelize } = require('sequelize');
 const database = require('../db');
+const Filme = require('./filme');
 
 const Genero = database.define('genero', {
     id: {
@@ -14,11 +15,6 @@ const Genero = database.define('genero', {
     }
 });
 
-Genero.belongsToMany(Filme, {
-    through: 'FilmeGeneros',  
-    foreignKey: 'generoId',   
-    otherKey: 'filmeId'       
-});
 
 module.exports = Genero;
 

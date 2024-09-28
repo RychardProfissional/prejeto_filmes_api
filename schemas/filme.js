@@ -7,82 +7,31 @@ const Filme = database.define('filme', {
         allowNull: false,
         primaryKey: true
     },
-    title: {
+    title: { 
         type: Sequelize.STRING,
         allowNull: false
     },
-    year: {
-        type: Sequelize.INTEGER
-    },
-    rated: {
+    plot: { 
         type: Sequelize.STRING
     },
-    released: {
+    released: { 
         type: Sequelize.STRING
     },
-    runtime: {
+    runtime: { 
         type: Sequelize.STRING
     },
-    director: {
+    poster: { 
         type: Sequelize.STRING
     },
-    writer: {
+    ratings: { 
         type: Sequelize.STRING
     },
-    actors: {
+    language: { 
         type: Sequelize.STRING
     },
-    plot: {
-        type: Sequelize.STRING
-    },
-    language: {
-        type: Sequelize.STRING
-    },
-    country: {
-        type: Sequelize.STRING
-    },
-    awards: {
-        type: Sequelize.STRING
-    },
-    poster: {
-        type: Sequelize.STRING
-    },
-    ratings: {
-        type: Sequelize.STRING
-    },
-    metascore: {
-        type: Sequelize.STRING
-    },
-    imdbRating: {
-        type: Sequelize.STRING
-    },
-    imdbVotes: {
-        type: Sequelize.STRING
-    },
-    type: {
-        type: Sequelize.STRING
-    },
-    dvd: {
-        type: Sequelize.STRING
-    },
-    boxOffice: {
-        type: Sequelize.STRING
-    },
-    production: {
-        type: Sequelize.STRING
-    },
-    website: {
-        type: Sequelize.STRING
-    },
-    response: {
+    awards: { 
         type: Sequelize.STRING
     }
-});
-
-Filme.belongsToMany(Genero, {
-    through: 'FilmeGeneros',  
-    foreignKey: 'filmeId',    
-    otherKey: 'generoId'      
 });
 
 module.exports = Filme;

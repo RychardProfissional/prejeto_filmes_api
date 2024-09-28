@@ -1,10 +1,17 @@
 const database = require('../db');
 const Filme = require('../schemas/filme');
+const Genero = require('../schemas/genero');
 const imdbID = require('../util/ImdbId');
 
 const getFilmes = async(req, res) => {
-  const filmes = await Filme.findAll();
-  res.send(filmes);
+  const filmes = await Filme.findAll({  
+    include: { 
+      model: Genero,
+      through: { attributes: [] }
+    },
+  });
+
+  res.status(200).send(filmes);
 };
 
 const getFilmeById = async(req, res) => {
@@ -17,69 +24,40 @@ const getFilmeByName = async(req, res) => {
   res.status(200).send(filme);
 };
 
-const postFilme = async(req, res) => {
+const postFilme = async (req, res) => {
   const { 
     title, 
-    year, 
-    rated, 
-    released, 
-    runtime, 
-    genre, 
-    director, 
-    writer, 
-    actors, 
     plot, 
-    language, 
-    country, 
-    awards, 
+    released, 
     poster, 
+    categorias, // Campo para as categorias selecionadas
+    runtime, 
+    genres, // Campo para os gêneros selecionados
+    language, 
     ratings, 
-    metascore, 
-    imdbRating, 
-    imdbVotes, 
-    type, 
-    dvd, 
-    boxOffice, 
-    production, 
-    website, 
-    response 
   } = req.body;
 
   const filme = {
-    imdbID: imdbID.newUnique(),
+    imdbID: await imdbID.newUnique(), // Se necessário, mantenha ou remova
     title,
-    year,
-    rated,
-    released,
-    runtime,
-    genre,
-    director,
-    writer,
-    actors,
     plot,
-    language,
-    country,
-    awards,
+    released,
     poster,
+    categorias, // Se necessário
+    runtime,
+    genres, // Se necessário
+    language,
     ratings,
-    metascore,
-    imdbRating,
-    imdbVotes,
-    type,
-    dvd,
-    boxOffice,
-    production,
-    website,
-    response
   };
 
-  const createdFilme = await Filme.create(filme)
-    .catch((e) => {
-      console.error(e);
-      res.status(500);
-    })
-
-  res.status(201).send(createdFilme);
+  try {
+    const createdFilme = await Filme.create(filme);
+    console.log(createdFilme);
+    res.status(201).send(createdFilme);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ error: 'Erro ao criar o filme' });
+  }
 };
 
 const putFilme = async (req, res) => {

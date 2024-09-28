@@ -11,4 +11,4 @@ create tablespace SpaceProjetoFilmes location 'C:\BancoProjetoFilmes';
 set default_tablespace = SpaceProjetoFilmes; 
 create user AdmFilmesOnline encrypted password 'safeps123'; 
 alter user AdmFilmesOnline with superuser; 
-create database prejeto_filmes with owner=AdmFilmesOnline;
+create database projeto_filmes with owner=AdmFilmesOnline;

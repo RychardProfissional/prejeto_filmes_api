@@ -1,6 +1,6 @@
 const Filme = require('../schemas/filme');
 
-function New() {
+function generateId() {
   const randomNumber = Math.floor(Math.random() * 90000000) + 10000000; // Gera um número com 8 dígitos
   return `tt${randomNumber}`;
 }
