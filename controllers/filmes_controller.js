@@ -19,8 +19,8 @@ const getFilmeById = async(req, res) => {
   res.status(200).send(filme);
 };
 
-const getFilmeByName = async(req, res) => {
-  const filme = await Filme.findOne({ where: { name: req.params.name } });
+const getFilmeByFilters = async(req, res) => {
+  const filme = await Filme.findAll({ where: { name: req.params.name } });
   res.status(200).send(filme);
 };
 
@@ -30,22 +30,21 @@ const postFilme = async (req, res) => {
     plot, 
     released, 
     poster, 
-    categorias, // Campo para as categorias selecionadas
+    categorias,
     runtime, 
-    genres, // Campo para os gêneros selecionados
+    genres, 
     language, 
     ratings, 
   } = req.body;
 
   const filme = {
-    imdbID: await imdbID.newUnique(), // Se necessário, mantenha ou remova
+    imdbID: await imdbID.newUnique(),
     title,
     plot,
     released,
     poster,
-    categorias, // Se necessário
+    categorias,
     runtime,
-    genres, // Se necessário
     language,
     ratings,
   };
@@ -53,6 +52,9 @@ const postFilme = async (req, res) => {
   try {
     const createdFilme = await Filme.create(filme);
     console.log(createdFilme);
+    if (genres && genres.length > 0) {
+      await createdFilme.setGeneros(genres);
+    }
     res.status(201).send(createdFilme);
   } catch (e) {
     console.error(e);
@@ -108,10 +110,45 @@ const deleteFilme = async (req, res) => {
   }
 };
 
+function applyFilters(queryParams) {
+  let filters = {}; 
+  let include = []; 
+  let limit = 50;
+
+  queryParams.forEach((param) => {
+    const { field, operation, value } = param.filter;
+
+    let sequelizeOp;
+    switch (operation) {
+      case "gte":
+        sequelizeOp = Op.gte;
+        break;
+      case "eq":
+        sequelizeOp = Op.eq;
+        break;
+    }
+
+    if (field !== "genreId") {
+      filters[field] = {
+        [sequelizeOp]: value,
+      };
+    }
+
+    if (field === "genreId") {
+      include.push({
+        model: Genre,
+        where: { id: value },
+      });
+    }
+  });
+
+  return { filters, include, limit };
+}
+
 module.exports = {
   getFilmes,
   getFilmeById,
-  getFilmeByName,
+  getFilmeByFilters,
   postFilme,
   putFilme,
   deleteFilme,

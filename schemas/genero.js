@@ -1,6 +1,5 @@
 const { Sequelize } = require('sequelize');
 const database = require('../db');
-const Filme = require('./filme');
 
 const Genero = database.define('genero', {
     id: {
@@ -12,6 +11,9 @@ const Genero = database.define('genero', {
     name: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    description: {
+        type: Sequelize.STRING
     }
 });
 

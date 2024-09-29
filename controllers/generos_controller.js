@@ -1,4 +1,3 @@
-const database = require('../db');
 const Genero = require('../schemas/genero');
 
 const getGeneros = async(req, res) => {
@@ -13,24 +12,36 @@ const getGeneroById = async(req, res) => {
 };
 
 const postGenero = async (req, res) => {
-  const { 
-    id, 
-    name,
-  } = req.body;
+  const { name, description } = req.body;
 
   const genero = {
-    id: await imdbID.newUnique(), // Se necessário, mantenha ou remova
     name,
+    description
   };
 
-  try {
-    const createdGenero = await Genero.create(genero);
-    console.log(createdGenero);
-    res.status(201).send(createdGenero);
-  } catch (e) {
-    console.error(e);
-    res.status(500).send({ error: 'Erro ao criar o genero' });
+  if (!name) {
+    res.status(400).send({
+      message: 'O campo nome é obrigatório',
+    });
+    return;
   }
+
+  if (!description) {
+    res.status(400).send({
+      message: 'O campo descrição é obrigatório',
+    });
+    return;
+  }
+
+  await Genero.create(genero)
+    .then((data) => {
+      res.status(201).send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || 'Algum erro aconteceu',
+      });
+    });
 };
 
 const putGenero = async (req, res) => {
