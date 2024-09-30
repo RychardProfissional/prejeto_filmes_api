@@ -20,8 +20,15 @@ const getFilmeById = async(req, res) => {
 };
 
 const getFilmeByFilters = async(req, res) => {
-  const filme = await Filme.findAll({ where: { name: req.params.name } });
-  res.status(200).send(filme);
+  const queryParams = req.query.filter;
+  const { filters, include, limits } = applyFilters(queryParams);
+
+  const filmes = await Filme.findAll({
+    where: filters,
+    include,
+    limit: limits, 
+  });
+  res.status(200).send(filmes);
 };
 
 const postFilme = async (req, res) => {
@@ -113,10 +120,10 @@ const deleteFilme = async (req, res) => {
 function applyFilters(queryParams) {
   let filters = {}; 
   let include = []; 
-  let limit = 50;
+  let limits = 50;
 
   queryParams.forEach((param) => {
-    const { field, operation, value } = param.filter;
+    const { field, operation, value, quantity } = param.filter;
 
     let sequelizeOp;
     switch (operation) {
@@ -132,6 +139,7 @@ function applyFilters(queryParams) {
       filters[field] = {
         [sequelizeOp]: value,
       };
+      limits[field] = quantity;
     }
 
     if (field === "genreId") {
@@ -142,7 +150,7 @@ function applyFilters(queryParams) {
     }
   });
 
-  return { filters, include, limit };
+  return { filters, include, limits };
 }
 
 module.exports = {
