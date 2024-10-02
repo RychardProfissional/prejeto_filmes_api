@@ -1,9 +1,11 @@
+const { Op } = require('sequelize');
 const database = require('../db');
 const Filme = require('../schemas/filme');
 const Genero = require('../schemas/genero');
 const imdbID = require('../util/ImdbId');
 
 const getFilmes = async(req, res) => {
+  console.log("getFilmes")
   const filmes = await Filme.findAll({  
     include: { 
       model: Genero,
@@ -15,33 +17,36 @@ const getFilmes = async(req, res) => {
 };
 
 const getFilmeById = async(req, res) => {
+  console.log("getFilmeById")
   const filme = await Filme.findByPk(req.params.id);
   res.status(200).send(filme);
 };
 
 const getFilmeByFilters = async(req, res) => {
+  console.log("filters")
   const queryParams = req.query.filter;
-  const { filters, include, limits } = applyFilters(queryParams);
-
+  const quantity = req.query.quantity;
+  console.log(queryParams)
+  const { filters, include } = applyFilters(queryParams);
   const filmes = await Filme.findAll({
     where: filters,
     include,
-    limit: limits, 
+    limit: quantity || 50, 
   });
   res.status(200).send(filmes);
 };
 
 const postFilme = async (req, res) => {
+  console.log("postFilme")
   const { 
     title, 
     plot, 
     released, 
     poster, 
-    categorias,
     runtime, 
     genres, 
     language, 
-    ratings, 
+    rated
   } = req.body;
 
   const filme = {
@@ -50,12 +55,12 @@ const postFilme = async (req, res) => {
     plot,
     released,
     poster,
-    categorias,
     runtime,
     language,
-    ratings,
+    rated,
+    ratings: Math.floor(Math.random() * 100) + 1,
   };
-
+  console.log(filme)
   try {
     const createdFilme = await Filme.create(filme);
     console.log(createdFilme);
@@ -70,6 +75,7 @@ const postFilme = async (req, res) => {
 };
 
 const putFilme = async (req, res) => {
+  console.log("putFilme")
   const { id } = req.params;
 
   try {
@@ -99,6 +105,7 @@ const putFilme = async (req, res) => {
 };
 
 const deleteFilme = async (req, res) => {
+  console.log("deleteFilme")
   const { id } = req.params;
 
   try {
@@ -120,37 +127,27 @@ const deleteFilme = async (req, res) => {
 function applyFilters(queryParams) {
   let filters = {}; 
   let include = []; 
-  let limits = 50;
 
-  queryParams.forEach((param) => {
-    const { field, operation, value, quantity } = param.filter;
+  Object.keys(queryParams).forEach((field) => {
+    const { operation, value } = queryParams[field];
 
-    let sequelizeOp;
-    switch (operation) {
-      case "gte":
-        sequelizeOp = Op.gte;
+    const sequelizeOp = Op[operation] || Op.eq;
+    switch (field) {
+      case "genre":
+        include.push({
+          model: Genero,
+          where: value,
+        });
         break;
-      case "eq":
-        sequelizeOp = Op.eq;
+      default:
+        filters[field] = {
+          [sequelizeOp]: value,
+        };
         break;
-    }
-
-    if (field !== "genreId") {
-      filters[field] = {
-        [sequelizeOp]: value,
-      };
-      limits[field] = quantity;
-    }
-
-    if (field === "genreId") {
-      include.push({
-        model: Genre,
-        where: { id: value },
-      });
     }
   });
 
-  return { filters, include, limits };
+  return { filters, include };
 }
 
 module.exports = {

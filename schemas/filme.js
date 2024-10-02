@@ -14,6 +14,9 @@ const Filme = database.define('filme', {
     plot: { 
         type: Sequelize.STRING
     },
+    rated: { 
+        type: Sequelize.INTEGER
+    },
     released: { 
         type: Sequelize.STRING
     },
