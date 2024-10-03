@@ -1,8 +1,22 @@
 const database = require('../db');
 const Filme = require('../schemas/filme');
+const Genero = require('../schemas/genero');
+
+Genero.belongsToMany(Filme, {
+  through: 'FilmeGeneros',  
+  foreignKey: 'generoId',   
+  otherKey: 'filmeId'       
+});
+
+Filme.belongsToMany(Genero, {
+  through: 'FilmeGeneros',  
+  foreignKey: 'filmeId',    
+  otherKey: 'generoId'      
+});
+
 
 const API_KEY = '357b41a4';
-const TOTAL_FILMES = 200;
+const TOTAL_FILMES = 2;
 
 function gerarTituloAleatorio() {
   const vogais = ['a', 'e', 'i', 'o', 'u'];
@@ -16,13 +30,16 @@ function gerarTituloAleatorio() {
 }
 
 async function fetchFilmePorTitulo(titulo) {
-  return await fetch(`http://www.omdbapi.com/?apikey=${API_KEY}&t=${encodeURIComponent(titulo)}`).then((response) => response.json()).catch((error) => null);
+  return await fetch(`http://www.omdbapi.com/?apikey=${API_KEY}&t=${encodeURIComponent(titulo)}`)
+    .then((response) => response.json())
+    .catch((error) => null);
 }
 
 async function main() {
   try {
     const filmesSalvos = [];
-    database.sync();
+    const generosSalvos = [];
+    await database.sync();
 
     while (filmesSalvos.length < TOTAL_FILMES) {
       const tituloAleatorio = gerarTituloAleatorio();
@@ -32,19 +49,37 @@ async function main() {
 
       if (filmeImdb) {
         const imdbID = filmeImdb.imdbID;
-        if (!filmesSalvos.includes(imdbID)) {
-          await Filme.create({
+        if (!filmesSalvos.includes(imdbID) && imdbID) {
+          const createdFilme = await Filme.create({
             imdbID: imdbID,
             title: filmeImdb.Title,
             plot: filmeImdb.Plot,
-            rated: parseInt(filmeImdb.Rated) || 0,
+            rated: parseInt(filmeImdb.Rated) || -1,
             released: filmeImdb.Released,
             runtime: filmeImdb.Runtime,
             poster: filmeImdb.Poster,
             ratings: JSON.stringify(filmeImdb.Ratings),
             language: filmeImdb.Language,
           });
+
           filmesSalvos.push(imdbID);
+
+          if (filmeImdb.Genre) {
+            const generos = filmeImdb.Genre.split(',').map((genero) => genero.trim());
+            let filmeGenero = []
+            for (const genero of generos) {
+              if (!generosSalvos.includes(genero)) {
+                const createdGenero = await Genero.create({ name: genero, description: '' });
+                generosSalvos.push(createdGenero.id);
+                filmeGenero.push(createdGenero.id);
+              }
+            }
+
+            if (createdFilme && filmeGenero.length > 0) {
+              console.log(filmeGenero)
+              await createdFilme.setGeneros(filmeGenero);
+            }
+          }
           console.log(`Filme salvo: ${filmeImdb.Title}`);
         } else {
           console.log(`Filme já existe: ${filmeImdb.Title}`);
@@ -61,4 +96,3 @@ async function main() {
 }
 
 main();
-
