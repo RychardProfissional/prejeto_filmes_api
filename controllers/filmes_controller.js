@@ -18,7 +18,12 @@ const getFilmes = async(req, res) => {
 
 const getFilmeById = async(req, res) => {
   console.log("getFilmeById")
-  const filme = await Filme.findByPk(req.params.id);
+  const filme = await Filme.findByPk(req.params.id, {  
+    include: { 
+      model: Genero,
+      through: { attributes: [] }
+    },
+  });
   res.status(200).send(filme);
 };
 
@@ -75,11 +80,15 @@ const postFilme = async (req, res) => {
 };
 
 const putFilme = async (req, res) => {
-  console.log("putFilme")
+  console.log("putFilme");
   const { id } = req.params;
 
   try {
-    const filme = await Filme.findByPk(id);
+    const filme = await Filme.findByPk(id, {
+      include: [{ model: Genero }],
+      through: { attributes: [] }
+    });
+
     if (!filme) {
       return res.status(404).send({ error: 'Filme não encontrado' });
     }
@@ -93,11 +102,26 @@ const putFilme = async (req, res) => {
       return acc;
     }, {});
 
+    console.log(updatedData);
+
+    // Atualiza os campos do filme
     await filme.update(updatedData);
 
-    const updatedFilme = await Filme.findByPk(id);
+    if (Array.isArray(bodyData.generos)) {
+      console.log(bodyData.generos)
+      await filme.setGeneros(bodyData.generos);
+    } else if (bodyData.generos === undefined) {
+      console.log('Gêneros não foram atualizados, pois o valor é undefined');
+    }
 
-    res.status(200).send(updatedFilme);
+    const updated = await Filme.findByPk(req.params.id, {  
+      include: { 
+        model: Genero,
+        through: { attributes: [] }
+      },
+    });
+
+    res.status(200).send(updated)
   } catch (e) {
     console.error(e);
     res.status(500).send({ error: 'Não foi possível atualizar o filme' });

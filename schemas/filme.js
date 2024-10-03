@@ -32,9 +32,6 @@ const Filme = database.define('filme', {
     language: { 
         type: Sequelize.STRING
     },
-    awards: { 
-        type: Sequelize.STRING
-    }
 });
 
 module.exports = Filme;
